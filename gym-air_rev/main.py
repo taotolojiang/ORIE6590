@@ -6,20 +6,28 @@ import numpy as np
 from stable_baselines3 import PPO
 from stable_baselines3.ppo import MlpPolicy
 from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.evaluation import evaluate_policy
+from policy_evaluate import evaluate
 
+modelAvgs = []
+numEnvs = 10
+for i in range(numEnvs):
+    #env = make_vec_env('air_rev-v0', n_envs=1)
+    env = gym.make('air_rev-v0')
 
-env = make_vec_env('air_rev-v0', n_envs=4)
+    model = PPO(MlpPolicy, env, verbose=1, n_steps=2048, gamma = 1)
 
+    model.learn(total_timesteps=100000)
 
-model = PPO(MlpPolicy, env, verbose=1, n_steps=2048, gamma = 1)
-model.learn(total_timesteps=1000000)
+    model.save("ar_1")
 
-model.save("ar_1")
-env = gym.make('air_rev-v0')
-n_episodes = 20000
-res_mean, res_std = evaluate_policy(model, env, n_eval_episodes=n_episodes)
-print(-res_mean,'+/-',1.96*res_std/np.sqrt(n_episodes))
+    #env = gym.make('air_rev-v0')
+    env.reset()
+    n_episodes = 1000
+    res_mean, res_std = evaluate(model, env, n_episodes)
+    print(res_mean,'+/-',1.96*res_std/np.sqrt(n_episodes))
+
+    modelAvgs += [res_mean]
+print(np.mean(modelAvgs), '+/-', 1.96*np.std(modelAvgs)/np.sqrt(numEnvs))
 
 #env = CrissCross(load = 0.5)#gym.make('criss_cross-v0')
 # n_steps = 20000
