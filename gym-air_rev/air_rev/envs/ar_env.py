@@ -8,8 +8,8 @@ class AirRev(gym.Env):
 
     def __init__(self, l =3, epoch = 20, capVal = 2.0):
         # hi-lo demand hyperparams
-        self.a = 5
-        self.rho = 1
+        # self.a = 5
+        # self.rho = 1
 
         # checks if we should end
         self.done = False
@@ -30,16 +30,32 @@ class AirRev(gym.Env):
                     demand_col[2 * j] = 1.0
                     self.demands = np.append(self.demands, demand_col, axis = 1)
         self.demands = np.append(self.demands, self.demands, axis = 1)
-        lowFares = np.random.randint(15,50,self.n//2)
-        self.revenue = np.append(lowFares, 5*lowFares)
-        print(self.revenue)
+        # lowFares = np.random.randint(15,50,self.n//2)
+        # self.revenue = np.append(lowFares, 5*lowFares)
+        # print(self.revenue)
         #self.revenue = np.asarray([[1.0,2.0][j] for j in range(2) for i in range(num_iter)])
         self.epoch = epoch  # the number of time steps we have to finish within
-        itineraryDemands = np.random.uniform(0,1,self.n//2)
-        scaleTerm = sum(itineraryDemands)
-        self.itinDemds = 0.8*itineraryDemands/scaleTerm
-        demdsWoNoArrival = np.append(0.75*self.itinDemds, 0.25*self.itinDemds)
-        self.probabilities = np.append(demdsWoNoArrival, np.asarray(0.2))
+        # itineraryDemands = np.random.uniform(0,1,self.n//2)
+        # scaleTerm = sum(itineraryDemands)
+        # self.itinDemds = 0.8*itineraryDemands/scaleTerm
+        # demdsWoNoArrival = np.append(0.75*self.itinDemds, 0.25*self.itinDemds)
+        # self.probabilities = np.append(demdsWoNoArrival, np.asarray(0.2))
+        # print(self.probabilities)
+        
+        # for 3, 20, 2
+        self.revenue = np.array([33, 28, 36, 34, 17, 20, 39, 24, 31, 19, \
+                                 30, 48, 165, 140, 180, 170, 85, 100,    \
+                                 195, 120, 155, 95, 150, 240])
+        self.probabilities = np.array([0.01327884, 0.02244177, 0.07923761, \
+                                       0.0297121,  0.02654582, 0.08408091, \
+                                       0.09591975, 0.00671065, 0.08147508, \
+                                       0.00977341, 0.02966204, 0.121162,   \
+                                       0.00442628, 0.00748059, 0.02641254, \
+                                       0.00990403, 0.00884861, 0.02802697, \
+                                       0.03197325, 0.00223688, 0.02715836, \
+                                       0.0032578,  0.00988735, 0.04038733, \
+                                       0.2])
+
         # the final entry accounts for the probability of no arrival
 
 
@@ -81,7 +97,7 @@ class AirRev(gym.Env):
                     # check all demands
                     for i in range(len(dems)):
                         # check there is enough seats on flight to meet demand
-                        if self.state[i] < dems[i]:
+                        if self.state[i] - dems[i] < 0:
                             bookable = False
                     if bookable:
                         #print("-----")
