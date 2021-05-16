@@ -70,7 +70,7 @@ class PPO(OnPolicyAlgorithm):
         n_steps: int = 2048,
         batch_size: Optional[int] = 64,
         n_epochs: int = 10,
-        gamma: float = 0.99,
+        gamma: float = 0.05,
         gae_lambda: float = 0.95,
         clip_range: Union[float, Schedule] = 0.2,
         clip_range_vf: Union[None, float, Schedule] = None,
@@ -118,7 +118,7 @@ class PPO(OnPolicyAlgorithm):
         if self.env is not None:
             # Check that `n_steps * n_envs > 1` to avoid NaN
             # when doing advantage normalization
-            buffer_size = self.env.num_envs * self.n_steps * 10
+            buffer_size = self.env.num_envs * self.n_steps * 100
             assert (
                 buffer_size > 1
             ), f"`n_steps * n_envs` must be greater than 1. Currently n_steps={self.n_steps} and n_envs={self.env.num_envs}"
@@ -186,7 +186,6 @@ class PPO(OnPolicyAlgorithm):
                 # if that line is commented (as in SAC)
                 if self.use_sde:
                     self.policy.reset_noise(self.batch_size)
-
                 values, log_prob, entropy = self.policy.evaluate_actions(rollout_data.observations, actions)
                 values = values.flatten()
                 # Normalize advantage

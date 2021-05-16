@@ -6,12 +6,12 @@ import numpy as np
 import torch as th
 
 from stable_baselines3.common import logger
-from stable_baselines3.common.base_class import BaseAlgorithm
+from base_class import BaseAlgorithm
 from buffers import DictRolloutBuffer, RolloutBuffer
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.policies import ActorCriticPolicy, BasePolicy
 from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedule
-from stable_baselines3.common.utils import obs_as_tensor, safe_mean
+from utils import obs_as_tensor, safe_mean
 from stable_baselines3.common.vec_env import VecEnv
 
 

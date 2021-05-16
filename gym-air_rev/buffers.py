@@ -7,7 +7,7 @@ import torch as th
 from gym import spaces
 
 from stable_baselines3.common.preprocessing import get_action_dim, get_obs_shape
-from stable_baselines3.common.type_aliases import (
+from type_aliases import (
     DictReplayBufferSamples,
     DictRolloutBufferSamples,
     ReplayBufferSamples,
@@ -320,8 +320,8 @@ class RolloutBuffer(BaseBuffer):
         observation_space: spaces.Space,
         action_space: spaces.Space,
         device: Union[th.device, str] = "cpu",
-        gae_lambda: float = 1,
-        gamma: float = 0.99,
+        gae_lambda: float = 0.95,
+        gamma: float = 0.95,
         n_envs: int = 1,
     ):
 
@@ -370,17 +370,77 @@ class RolloutBuffer(BaseBuffer):
         last_values = last_values.clone().cpu().numpy().flatten()
 
         last_gae_lam = 0
-        for step in reversed(range(self.buffer_size)):
+        for step in reversed(range(self.buffer_size)): 
             if step == self.buffer_size - 1:
                 next_non_terminal = 1.0 - dones
                 next_values = last_values
             else:
                 next_non_terminal = 1.0 - self.episode_starts[step + 1]
                 next_values = self.values[step + 1]
+            # print(next_non_terminal)
             delta = self.rewards[step] + self.gamma * next_values * next_non_terminal - self.values[step]
-            # last_gae_lam = delta + self.gamma * self.gae_lambda * next_non_terminal * last_gae_lam
-            last_gae_lam = (delta + last_gae_lam * step)/ (step+1)
+            # Generalized advantage estimator
+            last_gae_lam = delta + self.gamma * self.gae_lambda * next_non_terminal * last_gae_lam
+
+            # Simple cumulative moving average
+            # alpha = (self.buffer_size - step)/self.buffer_size
+            # last_gae_lam = alpha * delta + self.gamma * next_non_terminal * last_gae_lam
+            
+            # Weighted moving average
+            # total_step = (1 + self.buffer_size) * self.buffer_size / 2
+            # alpha = (1 + self.buffer_size - step) * (self.buffer_size - step) / 2
+            # last_gae_lam = delta * alpha/total_step + self.gamma * next_non_terminal * \
+            #                 last_gae_lam
+            
+            # Double exponential smoothing
+            # alpha = 0.8
+            # beta = 0.9
+
+            # if step == self.buffer_size - 1:
+            #     alpha = 1.0
+            #     beta = 1.0
+            #     s = 0.0
+            #     b = delta
+            
+            # last_gae_lam = alpha * delta + self.gamma * (1 - alpha) * \
+            #                 next_non_terminal * (s + b)            
+            # b = beta * (last_gae_lam - s) + (1 - beta) * b
+            # s = last_gae_lam
+
+            
             self.advantages[step] = last_gae_lam
+
+
+        # Double exponential smoothing
+        # delta_array = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        # for step in range(self.buffer_size): 
+        #     if step == self.buffer_size - 1:
+        #         next_non_terminal = 1.0 - dones
+        #         next_values = last_values
+        #     else:
+        #         next_non_terminal = 1.0 - self.episode_starts[step + 1]
+        #         next_values = self.values[step + 1]
+        #     delta = self.rewards[step] + self.gamma * next_values * next_non_terminal - self.values[step]
+        #     delta_array[step] = delta
+
+        # for step in reversed(range(self.buffer_size)): 
+        #     alpha = 0.8
+        #     beta = 0.9
+
+        #     if step == self.buffer_size - 1:
+        #         alpha = 1.0
+        #         beta = 1.0
+        #         s_last = 0.0
+        #         b_last = delta_array[step]
+
+        #     s = alpha * delta_array[step] + (1 - alpha) * (s_last + b_last)
+        #     b = beta * (s - s_last) + (1 - beta) * b_last
+        
+        #     self.advantages[step] = s
+        #     s_last = s
+        #     b_last = b
+
+
         # TD(lambda) estimator, see Github PR #375 or "Telescoping in TD(lambda)"
         # in David Silver Lecture 4: https://www.youtube.com/watch?v=PnHCvfgC_ZA
         self.returns = self.advantages + self.values
@@ -633,8 +693,8 @@ class DictRolloutBuffer(RolloutBuffer):
         observation_space: spaces.Space,
         action_space: spaces.Space,
         device: Union[th.device, str] = "cpu",
-        gae_lambda: float = 1,
-        gamma: float = 0.99,
+        gae_lambda: float = 0.95,
+        gamma: float = 0.05,
         n_envs: int = 1,
     ):
 
