@@ -12,4 +12,4 @@ The transitions are of the form: (state = [...c_i...c_j...], action[k] = 1, cust
 
 To run files on this directory, please first install the developer version of Stable-Baselines3. https://stable-baselines3.readthedocs.io/en/master/guide/install.html#development-version
 
-Use main.py to run the experiment and maingraphs.py to run experiments with output plots. To change the advantage estimator, please change the code in buffers.py. To test the hyperparamters, please use ppo.py.
+Use main.py to run the experiment and maingraphs.py to run experiments with output plots. To change the advantage estimator, please change the code in buffers.py. To test the hyperparamters, please use ppo.py. To change solvers, please comment/uncomment line 23-29 in maingraphs.py
