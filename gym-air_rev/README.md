@@ -9,3 +9,7 @@ The action space is all possible binary vectors of length n which tells you whet
 The one-step reward is the revenue gained from applying the predetermined action (of this time-step) to a customer who appears during this time-step (at most one will do so).
 
 The transitions are of the form: (state = [...c_i...c_j...], action[k] = 1, customerClass = k, customerDemand = [0,...,d_i,...,d_j,...,0], c - d >= 0, i != j, d_i, d_j not both 0) --> newState = c - d (noticeably, this will only differ at indices i and j). All other transitions lead to newState = state.
+
+To run files on this directory, please first install the developer version of Stable-Baselines3. https://stable-baselines3.readthedocs.io/en/master/guide/install.html#development-version
+
+Use main.py to run the experiment and maingraphs.py to run experiments with output plots. To change the advantage estimator, please change the code in buffers.py. To test the hyperparamters, please use ppo.py.
