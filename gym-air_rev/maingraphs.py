@@ -3,9 +3,10 @@ import air_rev
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-from stable_baselines3 import PPO
+import torch as th
+from ppo import PPO
 from stable_baselines3.ppo import MlpPolicy
+# from stable_baselines3.ppo import CnnPolicy, MlpPolicy
 from stable_baselines3.common.env_util import make_vec_env
 from policy_evaluate import evaluate
 
@@ -19,19 +20,25 @@ for i in range(numEnvs):
 
     l = len(env.revenue)
     print(sum(env.revenue[l//2:]))
-    model = PPO(MlpPolicy, env, learning_rate=0.003, verbose=0, n_steps=2048, gamma = 1)
+    # policy_kwargs = dict(optimizer_class=th.optim.SGD)
+    # optimizer_kwargs = dict(betas=(0.9, 0.999), eps=1e-08) 
+    # policy_kwargs = dict(optimizer_class=th.optim.SparseAdam, optimizer_kwargs = optimizer_kwargs) 
+    # policy_kwargs = dict(optimizer_class=th.optim.Adamax) 
+    # policy_kwargs = dict(optimizer_class=th.optim.Adagrad) 
+    # model = PPO(MlpPolicy, env, policy_kwargs = policy_kwargs, learning_rate=0.003, verbose=0, n_steps=1000, gamma = 1.0)
+    model = PPO(MlpPolicy, env, learning_rate=0.003, verbose=0, n_steps=1000, gamma = 1.0)
 
     # loop 10000 times: do model.learn for one timestep, do 10 episodes
     # of evaluate, save mean and std, plot the graph of the mean and std
     # over time. Finish off with a 100 episode evaluate of the final model?
-    timeSteps=300
+    timeSteps=500
     plotMeans = []
     plotStds = []
     plotTimes = range(timeSteps)
     for j in range(timeSteps):
         if j % 10 == 0:
             print("round " + str(j))
-        model.learn(total_timesteps=100)
+        model.learn(total_timesteps=1000)
 
         #model.save("ar_1")
 
@@ -40,7 +47,7 @@ for i in range(numEnvs):
         n_episodes = 30
         res_mean, res_std = evaluate(model, env, n_episodes)
         plotMeans += [res_mean]
-        print(res_mean)
+        # print(res_mean)
         plotStds += [res_std/np.sqrt(n_episodes)]
 
     plt.plot(plotTimes, plotMeans)

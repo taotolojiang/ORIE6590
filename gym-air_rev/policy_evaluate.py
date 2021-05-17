@@ -19,9 +19,9 @@ def evaluate(model, env, n_steps=500):
             k = k + 1
         avg_reward[i]=avg_r
         avg_timesteps[i] = env.timeSteps
-    print(avg_reward)
-    print(max(avg_reward))
-    print(min(avg_reward))
-    print(len(avg_timesteps <20))
+    # print(avg_reward)
+    # print(max(avg_reward))
+    # print(min(avg_reward))
+    # print(len(list(filter(lambda x: x < 20, avg_timesteps))))
 
     return np.mean(avg_reward), np.std(avg_reward)

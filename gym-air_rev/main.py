@@ -3,28 +3,28 @@ import air_rev
 import numpy as np
 
 
-from stable_baselines3 import PPO
+from ppo import PPO
 from stable_baselines3.ppo import MlpPolicy
 from stable_baselines3.common.env_util import make_vec_env
 from policy_evaluate import evaluate
 
 modelAvgs = []
-numEnvs = 10
+numEnvs = 1
 for i in range(numEnvs):
     #env = make_vec_env('air_rev-v0', n_envs=1)
     env = gym.make('air_rev-v0')
 
-    model = PPO(MlpPolicy, env, verbose=1, n_steps=2048, gamma = 1)
+    model = PPO(MlpPolicy, env, learning_rate=0.003, verbose=1, n_steps=2048, gamma = 1)
 
-    model.learn(total_timesteps=100000)
+    model.learn(total_timesteps=500000)
 
     model.save("ar_1")
 
     #env = gym.make('air_rev-v0')
     env.reset()
-    n_episodes = 1000
+    n_episodes = 500
     res_mean, res_std = evaluate(model, env, n_episodes)
-    print(res_mean,'+/-',1.96*res_std/np.sqrt(n_episodes))
+    print(res_mean,'+/-',res_std/np.sqrt(n_episodes))
 
     modelAvgs += [res_mean]
 print(np.mean(modelAvgs), '+/-', 1.96*np.std(modelAvgs)/np.sqrt(numEnvs))
